@@ -31,9 +31,10 @@ else
     if [ -n "$YARN_LOGS_USER" ]; then
       echo "Caught error; fetching owner..."
       owner="$(yarn application -list -appStates FINISHED,FAILED,KILLED | grep "$appid" | awk -F'\t' '{gsub(/^ +/, "", $4); gsub(/ +$/, "", $4); print $4 }')"
+      unset YARN_LOGS_USER
       if [ -n "$owner" ]; then
         echo "Found app owner: $owner; retrying fetching logs for $appid as user $YARN_LOGS_USER..."
-        sudo -u "$YARN_LOGS_USER" yarn logs -applicationId "$appid" -appOwner "$owner" > "$logfile"
+        yarn logs -applicationId "$appid" > "$logfile"
       else
         echo "Unable to find application $appid" 1>&2
         exit 1
